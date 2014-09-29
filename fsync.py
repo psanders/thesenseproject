@@ -62,7 +62,6 @@ def init():
         # Something is wrong
         if(response == False)
             return False
-        
     
 def setup_ftp():
     for i in FTP_SEC:
