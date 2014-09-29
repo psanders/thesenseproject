@@ -58,9 +58,9 @@ def send_cmd(cmd, timeout):
 def init():
     for i in INIT_SEC:
         response = send_cmd(i, 2)
-        print(response);
+        print(response)
         # Something is wrong
-        if(response == False)
+        if response == False:
             return False
     
 def setup_ftp():
