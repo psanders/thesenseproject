@@ -12,7 +12,6 @@ INIT_SEC = [CMD_AT, CMD_AT_CPIN, CMD_AT_CREG, CMD_AT_CGATT]
 CMD_AT_SAPBR_CONTENTTYPE = ["AT+SAPBR=3,1,\"Contype\",\"GPRS\"", "OK"]
 CMD_AT_SAPBR_APN = ["AT+SAPBR=3,1,\"APN\",\"fast.t-mobile.com\"", "OK"]
 CMD_AT_SAPBR_QUERY = ["AT+SAPBR=2,1", "+SAPBR: 1,1,"]
-CMD_AT_FTPMODE = ["AT+FTPMODE=1", "OK"]
 CMD_AT_FTPCID = ["AT+FTPCID=1", "OK"]
 CMD_AT_FTPSERV = ["AT+FTPSERV=\"phonytive.com\"", "OK"]
 CMD_AT_FTPPORT = ["AT+FTPPORT=21", "OK"]
@@ -58,9 +57,10 @@ def send_cmd(cmd, timeout):
 def init():
     for i in INIT_SEC:
         response = send_cmd(i, 2)
-        print(response)
+        print response
         # Something is wrong
         if response == False:
+            print "DBG1"
             return False
     
 def setup_ftp():
@@ -80,7 +80,6 @@ def upload_ftp(file):
     response = send_cmd(CMD_AT_FTPPUTNAME, 2)
     print response
     response = send_cmd(CMD_AT_FTPPUT, 30)
-
 
 # Do this forever    
 while True:
