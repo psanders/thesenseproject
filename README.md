@@ -4,8 +4,8 @@ Weather and Wild Life Research Station
 
 Hardware
 
-.RPI B+
-.PiCamera NoIR(Night Vision)
++RPI B+
++PiCamera NoIR(Night Vision)
 .Sim900(SainSmart)
 12v battery pack
 12v Step Down to 5v
