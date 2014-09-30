@@ -1,13 +1,16 @@
 import serial
 import time
 import array
+import RPi.GPIO as GPIO
+
 
 # AT cmds to initiate modem
 CMD_AT = ["AT","OK"]  # First test if everything is okay.
 CMD_AT_CPIN = ["AT+CPIN?", "+CPIN: READY"]  # This is to check if SIM is unlocked.
+CMD_AT_CSQ = ["AT+CSQ", "+CSQ:"]  # This is to check if SIM is unlocked.
 CMD_AT_CREG = ["AT+CREG?", "+CREG: 0,1"] # This checks if SIM is registered or not
 CMD_AT_CGATT= ["AT+CGATT?", "+CGATT: 1"] # Check if GPRS is attached or not
-INIT_SEC = [CMD_AT, CMD_AT_CPIN, CMD_AT_CREG, CMD_AT_CGATT]
+INIT_SEC = [CMD_AT, CMD_AT_CPIN, CMD_AT_CSQ, CMD_AT_CREG, CMD_AT_CGATT]
 # AT cmds to setup ftp client
 CMD_AT_SAPBR_CONTENTTYPE = ["AT+SAPBR=3,1,\"Contype\",\"GPRS\"", "OK"]
 CMD_AT_SAPBR_APN = ["AT+SAPBR=3,1,\"APN\",\"fast.t-mobile.com\"", "OK"]
@@ -57,16 +60,17 @@ def send_cmd(cmd, timeout):
 def init():
     for i in INIT_SEC:
         response = send_cmd(i, 2)
+
         print response
         # Something is wrong
         if response == False:
-            print "DBG1"
             return False
     
 def setup_ftp():
     for i in FTP_SEC:
         response = send_cmd(i, 2);
         print(response);
+
 def download_ftp(file):
     CMD_AT_FTPGETNAME[0] = CMD_AT_FTPGETNAME[0] + "\"" + file + "\""
     response = send_cmd(CMD_AT_FTPGETNAME, 2)
@@ -75,18 +79,27 @@ def download_ftp(file):
     print response
     response = read();
     print response
+
 def upload_ftp(file):
     CMD_AT_FTPPUTNAME[0] = CMD_AT_FTPPUTNAME[0] + "\"" + file + "\""
     response = send_cmd(CMD_AT_FTPPUTNAME, 2)
     print response
     response = send_cmd(CMD_AT_FTPPUT, 30)
 
+def reset_modem():
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(12, GPIO.OUT)
+    GPIO.output(12,True)
+    time.sleep(2)
+    GPIO.output(12,False)
+    
+
 # Do this forever    
 while True:
     while(True):
         is_connected = init()
         if is_connected == False:
-            print "Something when wrong w/ the connection. Let's try again!"
+            print "Something when wrong w/ the connection."
             continue
         
         is_ftp_setup = setup_ftp();
