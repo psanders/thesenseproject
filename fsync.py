@@ -21,7 +21,7 @@ CMD_AT_SAPBR_PWD = ["AT+SAPBR=3,1,\"PWD\",\"CINGULAR1\"", "OK"]
 CMD_AT_SAPBR_OPEN_CONNECTION = ["AT+SAPBR=1,1", "OK"]
 CMD_AT_SAPBR_QUERY = ["AT+SAPBR=2,1", "+SAPBR: 1,1,"]
 CMD_AT_FTPCID = ["AT+FTPCID=1", "OK"]
-CMD_AT_FTPSERV = ["AT+FTPSERV=\"phonytive.com\"", "OK"]
+CMD_AT_FTPSERV = ["AT+FTPSERV=\"50.63.98.1\"", "OK"]
 CMD_AT_FTPPORT = ["AT+FTPPORT=21", "OK"]
 CMD_AT_FTPPUN = ["AT+FTPUN=\"wwrsftp\"", "OK"]
 CMD_AT_FTPPW = ["AT+FTPPW=\"G4t0p4rd0#\"", "OK"]
@@ -31,7 +31,7 @@ CMD_AT_FTPPUT = ["AT+FTPPUT=1", "OK"]
 CMD_AT_FTPGETNAME = ["AT+FTPGETNAME=", "OK"] # You must add the file name !!!
 CMD_AT_FTPGETPATH = ["AT+FTPGETPATH=\"/\"", "OK"]
 CMD_AT_FTPGET = ["AT+FTPGET=1", "OK"]
-FTP_SEC = [CMD_AT_SAPBR_CLOSE, CMD_AT_SAPBR_OPEN, CMD_AT_SAPBR_CONTENTTYPE, CMD_AT_SAPBR_APN, CMD_AT_SAPBR_USER, CMD_AT_SAPBR_PWD, CMD_AT_SAPBR_QUERY, CMD_AT_FTPCID, CMD_AT_FTPSERV, CMD_AT_FTPPORT, CMD_AT_FTPPUN, CMD_AT_FTPPW, CMD_AT_FTPPUTPATH, CMD_AT_FTPGETPATH]
+FTP_SEC = [CMD_AT_SAPBR_CLOSE, CMD_AT_SAPBR_CONTENTTYPE, CMD_AT_SAPBR_APN, CMD_AT_SAPBR_USER, CMD_AT_SAPBR_PWD, CMD_AT_SAPBR_OPEN, CMD_AT_SAPBR_QUERY, CMD_AT_FTPCID, CMD_AT_FTPSERV, CMD_AT_FTPPORT, CMD_AT_FTPPUN, CMD_AT_FTPPW, CMD_AT_FTPPUTPATH, CMD_AT_FTPGETPATH]
 
 # Sim900 modem
 port = serial.Serial("/dev/ttyAMA0", baudrate = 115200, writeTimeout = 2)
@@ -96,7 +96,6 @@ def reset_modem():
     GPIO.output(12,True)
     time.sleep(2)
     GPIO.output(12,False)
-    
 
 # Do this forever    
 while True:
@@ -109,8 +108,9 @@ while True:
         is_ftp_setup = setup_ftp();
         if is_ftp_setup == False:
             print "Something when wrong w/ setting up the ftp connection. Let's start over!"
+        break
 
     download_ftp("readme.txt")
     
     # Lets do this all over again
-    time.sleep(60000)
+    time.sleep(60)
