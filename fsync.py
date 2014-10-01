@@ -76,19 +76,18 @@ def setup_ftp():
         print(response);
 
 def download_ftp(file):
-    CMD_AT_FTPGETNAME[0] = CMD_AT_FTPGETNAME[0] + "\"" + file + "\""
-    response = send_cmd(CMD_AT_FTPGETNAME, 2)
+    f = CMD_AT_FTPGETNAME[0] + "\"" + file + "\""
+    print f
+    response = send_cmd(f, 2)
     print response
-    response = send_cmd(CMD_AT_FTPGET, 30)
-    print response
-    response = read();
+    response = send_cmd(CMD_AT_FTPGET, 10)
     print response
 
 def upload_ftp(file):
-    CMD_AT_FTPPUTNAME[0] = CMD_AT_FTPPUTNAME[0] + "\"" + file + "\""
-    response = send_cmd(CMD_AT_FTPPUTNAME, 2)
+    f = CMD_AT_FTPPUTNAME[0] + "\"" + file + "\""
+    response = send_cmd(f, 2)
     print response
-    response = send_cmd(CMD_AT_FTPPUT, 30)
+    response = send_cmd(CMD_AT_FTPPUT, 10)
 
 def reset_modem():
     GPIO.setmode(GPIO.BOARD)
@@ -110,7 +109,7 @@ while True:
             print "Something when wrong w/ setting up the ftp connection. Let's start over!"
         break
 
-    download_ftp("readme.txt")
+    download_ftp("/readme.txt")
     
     # Lets do this all over again
     time.sleep(60)
