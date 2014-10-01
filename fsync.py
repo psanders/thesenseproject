@@ -3,7 +3,6 @@ import time
 import array
 import RPi.GPIO as GPIO
 
-
 # AT cmds to initiate modem
 CMD_AT = ["AT","OK"]  # First test if everything is okay.
 CMD_AT_CPIN = ["AT+CPIN?", "+CPIN: READY"]  # This is to check if SIM is unlocked.
@@ -46,7 +45,6 @@ def read():
                 return rv
 # Basic I/O operation: Read
 def write(str):
-    read()
     port.write(str + "\r\n")
 
 # Send a cmd an return a response or 0 in case off error
@@ -81,18 +79,21 @@ def download_ftp(file):
     f[0] = CMD_AT_FTPGETNAME[0] + "\"" + file + "\""
     response = send_cmd(f, 2)
     print response
-    response = send_cmd(CMD_AT_FTPGET, 10)
-    print response    
-    write("AT+FTPGET=2,1024") # FTPGET MODE 2
-    response = read()
-    print response
+    response = send_cmd(CMD_AT_FTPGET, 30)
+    if response != False:
+        write("AT+FTPGET=2,1024") # FTPGET MODE 2
+        data_size = int(port.readline().rsplit(",")[1])
+        print "--"
+        print port.read(data_size)
+        print "--"
+    return False
 
 def upload_ftp(file):
     f = CMD_AT_FTPGETNAME
     f[0] = CMD_AT_FTPPUTNAME[0] + "\"" + file + "\""
     response = send_cmd(f, 2)
     print response
-    response = send_cmd(CMD_AT_FTPPUT, 10)
+    response = send_cmd(CMD_AT_FTPPUT, 30)
 
 def reset_modem():
     GPIO.setmode(GPIO.BOARD)
