@@ -26,10 +26,10 @@ CMD_AT_FTPPORT = ["AT+FTPPORT=21", "OK"]
 CMD_AT_FTPPUN = ["AT+FTPUN=\"wwrsftp\"", "OK"]
 CMD_AT_FTPPW = ["AT+FTPPW=\"G4t0p4rd0#\"", "OK"]
 CMD_AT_FTPPUTNAME = ["AT+FTPPUTNAME=", "OK"] # You must add the file name !!!
-CMD_AT_FTPPUTPATH = ["AT+FTPPUTPATH=\"/\"", "OK"]
+CMD_AT_FTPPUTPATH = ["AT+FTPPUTPATH=\"wwrsftp/\"", "OK"]
 CMD_AT_FTPPUT = ["AT+FTPPUT=1", "OK"]
 CMD_AT_FTPGETNAME = ["AT+FTPGETNAME=", "OK"] # You must add the file name !!!
-CMD_AT_FTPGETPATH = ["AT+FTPGETPATH=\"/\"", "OK"]
+CMD_AT_FTPGETPATH = ["AT+FTPGETPATH=\"wwrsftp/\"", "OK"]
 CMD_AT_FTPGET = ["AT+FTPGET=1", "OK"]
 FTP_SEC = [CMD_AT_SAPBR_CLOSE, CMD_AT_SAPBR_CONTENTTYPE, CMD_AT_SAPBR_APN, CMD_AT_SAPBR_USER, CMD_AT_SAPBR_PWD, CMD_AT_SAPBR_OPEN, CMD_AT_SAPBR_QUERY, CMD_AT_FTPCID, CMD_AT_FTPSERV, CMD_AT_FTPPORT, CMD_AT_FTPPUN, CMD_AT_FTPPW, CMD_AT_FTPPUTPATH, CMD_AT_FTPGETPATH]
 
@@ -46,6 +46,7 @@ def read():
                 return rv
 # Basic I/O operation: Read
 def write(str):
+    read()
     port.write(str + "\r\n")
 
 # Send a cmd an return a response or 0 in case off error
@@ -76,28 +77,30 @@ def setup_ftp():
         print(response);
 
 def download_ftp(file):
-    f = CMD_AT_FTPGETNAME[0] + "\"" + file + "\""
-    response = send_cmd(CMD_AT_FTPGETNAME, 2)
+    f = CMD_AT_FTPGETNAME
+    f[0] = CMD_AT_FTPGETNAME[0] + "\"" + file + "\""
+    response = send_cmd(f, 2)
     print response
-    response = send_cmd(CMD_AT_FTPGET, 30)
-    print response
-    response = read();
+    response = send_cmd(CMD_AT_FTPGET, 10)
+    print response    
+    write("AT+FTPGET=2,1024") # FTPGET MODE 2
+    response = read()
     print response
 
 def upload_ftp(file):
-    f = CMD_AT_FTPPUTNAME[0] + "\"" + file + "\""
-    response = send_cmd(CMD_AT_FTPPUTNAME, 2)
+    f = CMD_AT_FTPGETNAME
+    f[0] = CMD_AT_FTPPUTNAME[0] + "\"" + file + "\""
+    response = send_cmd(f, 2)
     print response
-    response = send_cmd(CMD_AT_FTPPUT, 30)
+    response = send_cmd(CMD_AT_FTPPUT, 10)
 
 def reset_modem():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(12, GPIO.OUT)
-    GPIO.output(12,True)
+    GPIO.output(12, True)
     time.sleep(2)
-    GPIO.output(12,False)
+    GPIO.output(12, False)
     
-
 # Do this forever    
 while True:
     while(True):
@@ -110,7 +113,7 @@ while True:
         if is_ftp_setup == False:
             print "Something when wrong w/ setting up the ftp connection. Let's start over!"
         break
-    download_ftp("/readme.txt")
+    download_ftp("readme.txt")
     
     # Lets do this all over again
     time.sleep(60)
