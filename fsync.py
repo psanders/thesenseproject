@@ -29,7 +29,7 @@ CMD_AT_FTPPUTPATH = ["AT+FTPPUTPATH=\"wwrsftp/\"", "OK"]
 CMD_AT_FTPPUT = ["AT+FTPPUT=1", "OK"]
 CMD_AT_FTPGETNAME = ["AT+FTPGETNAME=", "OK"] # You must add the file name !!!
 CMD_AT_FTPGETPATH = ["AT+FTPGETPATH=\"wwrsftp/\"", "OK"]
-CMD_AT_FTPGET = ["AT+FTPGET=1", "OK"]
+CMD_AT_FTPGET = ["AT+FTPGET=1", "+FTPGET:1,1"]
 FTP_SEC = [CMD_AT_SAPBR_CLOSE, CMD_AT_SAPBR_CONTENTTYPE, CMD_AT_SAPBR_APN, CMD_AT_SAPBR_USER, CMD_AT_SAPBR_PWD, CMD_AT_SAPBR_OPEN, CMD_AT_SAPBR_QUERY, CMD_AT_FTPCID, CMD_AT_FTPSERV, CMD_AT_FTPPORT, CMD_AT_FTPPUN, CMD_AT_FTPPW, CMD_AT_FTPPUTPATH, CMD_AT_FTPGETPATH]
 
 # Sim900 modem
@@ -73,6 +73,9 @@ def setup_ftp():
     for i in FTP_SEC:
         response = send_cmd(i, 2);
         print(response);
+        # Something is wrong
+        if response == False:
+            return False
 
 def download_ftp(file):
     f = CMD_AT_FTPGETNAME
@@ -80,6 +83,7 @@ def download_ftp(file):
     response = send_cmd(f, 2)
     print response
     response = send_cmd(CMD_AT_FTPGET, 30)
+    print response
     if response != False:
         write("AT+FTPGET=2,1024") # FTPGET MODE 2
         data_size = int(port.readline().rsplit(",")[1])
@@ -112,9 +116,12 @@ while True:
         
         is_ftp_setup = setup_ftp();
         if is_ftp_setup == False:
-            print "Something when wrong w/ setting up the ftp connection. Let's start over!"
+            print "Something when wrong w/ setting up the ftp setup. Let's start over!"
+            continue
         break
-    download_ftp("readme.txt")
+    download_completed = download_ftp("readme.txt")
+    if download_completed == False:
+        print "Something went wrong..."
     
     # Lets do this all over again
     time.sleep(60)
