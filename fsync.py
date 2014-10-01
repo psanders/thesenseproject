@@ -21,7 +21,7 @@ CMD_AT_SAPBR_PWD = ["AT+SAPBR=3,1,\"PWD\",\"CINGULAR1\"", "OK"]
 CMD_AT_SAPBR_OPEN_CONNECTION = ["AT+SAPBR=1,1", "OK"]
 CMD_AT_SAPBR_QUERY = ["AT+SAPBR=2,1", "+SAPBR: 1,1,"]
 CMD_AT_FTPCID = ["AT+FTPCID=1", "OK"]
-CMD_AT_FTPSERV = ["AT+FTPSERV=\"50.63.98.1\"", "OK"]
+CMD_AT_FTPSERV = ["AT+FTPSERV=\"phonytive.com\"", "OK"]
 CMD_AT_FTPPORT = ["AT+FTPPORT=21", "OK"]
 CMD_AT_FTPPUN = ["AT+FTPUN=\"wwrsftp\"", "OK"]
 CMD_AT_FTPPW = ["AT+FTPPW=\"G4t0p4rd0#\"", "OK"]
@@ -77,17 +77,18 @@ def setup_ftp():
 
 def download_ftp(file):
     f = CMD_AT_FTPGETNAME[0] + "\"" + file + "\""
-    print f
-    response = send_cmd(f, 2)
+    response = send_cmd(CMD_AT_FTPGETNAME, 2)
     print response
-    response = send_cmd(CMD_AT_FTPGET, 10)
+    response = send_cmd(CMD_AT_FTPGET, 30)
+    print response
+    response = read();
     print response
 
 def upload_ftp(file):
     f = CMD_AT_FTPPUTNAME[0] + "\"" + file + "\""
-    response = send_cmd(f, 2)
+    response = send_cmd(CMD_AT_FTPPUTNAME, 2)
     print response
-    response = send_cmd(CMD_AT_FTPPUT, 10)
+    response = send_cmd(CMD_AT_FTPPUT, 30)
 
 def reset_modem():
     GPIO.setmode(GPIO.BOARD)
@@ -95,6 +96,7 @@ def reset_modem():
     GPIO.output(12,True)
     time.sleep(2)
     GPIO.output(12,False)
+    
 
 # Do this forever    
 while True:
@@ -108,7 +110,6 @@ while True:
         if is_ftp_setup == False:
             print "Something when wrong w/ setting up the ftp connection. Let's start over!"
         break
-
     download_ftp("/readme.txt")
     
     # Lets do this all over again
