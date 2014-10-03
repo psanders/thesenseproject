@@ -3,21 +3,14 @@ import time
 import array
 import RPi.GPIO as GPIO
 
-# AT cmds to initiate modem
-CMD_AT = ["AT","OK"]  # First test if everything is okay.
-CMD_AT_CPIN = ["AT+CPIN?", "+CPIN: READY"]  # This is to check if SIM is unlocked.
-CMD_AT_CSQ = ["AT+CSQ", "+CSQ:"]  # This is to check if SIM is unlocked.
-CMD_AT_CREG = ["AT+CREG?", "+CREG: 0,1"] # This checks if SIM is registered or not
-CMD_AT_CGATT= ["AT+CGATT?", "+CGATT: 1"] # Check if GPRS is attached or not
-INIT_SEC = [CMD_AT, CMD_AT_CPIN, CMD_AT_CSQ, CMD_AT_CREG, CMD_AT_CGATT]
-# AT cmds to setup ftp client (We use SAPBR cid 1 by default)
+# Commands to perform FTP transfer
+CMD_AT = ["AT","OK"]  # First test if serial connection up
 CMD_AT_SAPBR_CLOSE = ["AT+SAPBR=0,1", "OK"]
 CMD_AT_SAPBR_OPEN = ["AT+SAPBR=1,1", "OK"]
 CMD_AT_SAPBR_CONTENTTYPE = ["AT+SAPBR=3,1,\"Contype\",\"GPRS\"", "OK"]
 CMD_AT_SAPBR_APN = ["AT+SAPBR=3,1,\"APN\",\"wap.cingular\"", "OK"]
 CMD_AT_SAPBR_USER = ["AT+SAPBR=3,1,\"USER\",\"WAP@CINGULARGPRS.COM\"", "OK"]
 CMD_AT_SAPBR_PWD = ["AT+SAPBR=3,1,\"PWD\",\"CINGULAR1\"", "OK"]
-CMD_AT_SAPBR_OPEN_CONNECTION = ["AT+SAPBR=1,1", "OK"]
 CMD_AT_SAPBR_QUERY = ["AT+SAPBR=2,1", "+SAPBR: 1,1,"]
 CMD_AT_FTPCID = ["AT+FTPCID=1", "OK"]
 CMD_AT_FTPSERV = ["AT+FTPSERV=\"phonytive.com\"", "OK"]
@@ -59,16 +52,6 @@ def send_cmd(cmd, timeout):
   print response
   return False
 
-# Initialize the modem
-def init():
-    for i in INIT_SEC:
-        response = send_cmd(i, 2)
-
-        print response
-        # Something is wrong
-        if response == False:
-            return False
-    
 def setup_ftp():
     for i in FTP_SEC:
         response = send_cmd(i, 2);
@@ -82,7 +65,7 @@ def download_ftp(file):
     f[0] = CMD_AT_FTPGETNAME[0] + "\"" + file + "\""
     response = send_cmd(f, 2)
     print response
-    response = send_cmd(CMD_AT_FTPGET, 30)
+    response = send_cmd(CMD_AT_FTPGET, 5)
     print response
     if response != False:
         write("AT+FTPGET=2,1024") # FTPGET MODE 2
@@ -90,6 +73,7 @@ def download_ftp(file):
         print "--"
         print port.read(data_size)
         print "--"
+    # Must verify if download is OK and them place the data in a file
     return False
 
 def upload_ftp(file):
@@ -109,11 +93,6 @@ def reset_modem():
 # Do this forever    
 while True:
     while(True):
-        is_connected = init()
-        if is_connected == False:
-            print "Something when wrong w/ the connection."
-            continue
-        
         is_ftp_setup = setup_ftp();
         if is_ftp_setup == False:
             print "Something when wrong w/ setting up the ftp setup. Let's start over!"
