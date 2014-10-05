@@ -1,7 +1,4 @@
 #!/usr/bin/python
-
-# Copied from http://www.raspberrypi.org/learning/python-picamera-setup/
-
 import time
 import picamera
 
