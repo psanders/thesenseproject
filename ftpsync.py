@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Execute on @reboot
+
 import os
 import time
 import glob
@@ -33,8 +34,9 @@ while True:
             if retry is 0:
                 # Power cicle modem
                 common.toggle_button(False)
-                time.sleep(3)
+                time.sleep(10)
                 common.toggle_button(True)
+                time.sleep(10)
             continue
         break
 
@@ -51,3 +53,4 @@ while True:
         break
 
     time.sleep(S_T)
+
