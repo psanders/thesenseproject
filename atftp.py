@@ -1,4 +1,3 @@
-# FTP upload/download via AT commands
 import atio
 import time
 import os
@@ -34,47 +33,51 @@ def upload_ftp(file):
     f = CMD_AT_FTPGETNAME
     f[0] = CMD_AT_FTPPUTNAME[0] + "\"" + file + "\""
     response = atio.send_cmd(f, 0.5)
-    response = atio.send_cmd(CMD_AT_FTPPUT, 6) # It takes few seconds to open session
+    response = atio.send_cmd(CMD_AT_FTPPUT, 8) # It takes few seconds to open session
     if response == False:
-        print "Can't upload file"
-        return False
+	print "Can't upload file"
+        # Close session if any
+        response = atio.send_cmd(CMD_AT_FTPPUT_CLOSE, 0.5)
+        print response
+	return False
     # Read file to upload
     fsize = os.stat(DATA_FOLDER+file).st_size
     with open(DATA_FOLDER+file, 'r') as f:
-        RECORD_SIZE = 1300 records = iter(partial(f.read, RECORD_SIZE), b'')
+        RECORD_SIZE = 1300
+        records = iter(partial(f.read, RECORD_SIZE), b'')
         ccount = 0
-        for r in records:
-            cmd = CMD_AT_FTPPUT_START[:]
-            cmd[0] = cmd[0] + str(len(r))
-            print "Chunk #",ccount,"out of",fsize/1300, "and" ,(fsize - 1300 * ccount), "bytes left..."
-            ccount += 1
+    	for r in records:
+    	    cmd = CMD_AT_FTPPUT_START[:]
+    	    cmd[0] = cmd[0] + str(len(r))
+	    print "Chunk #",ccount,"out of",fsize/1300, "and" ,(fsize - 1300 * ccount), "bytes left..."
+	    ccount += 1
             # Upload file
-            response = atio.send_cmd(cmd, 0.2)
-            if response is not False:
-               atio.write(r)
-               atio.read()
-        response = atio.send_cmd(CMD_AT_FTPPUT_CLOSE, 0.2)
+    	    response = atio.send_cmd(cmd, 0.2)
+    	    if response is not False:
+	       atio.write(r)
+	       err = atio.read()
+	       if "ERROR" in err: return False
+	response = atio.send_cmd(CMD_AT_FTPPUT_CLOSE, 0.5)
     return True
 
-def setup_ftp():
+def setup_ftp():	
     for i in FTP_SEC:
         if i == CMD_AT_SAPBR_OPEN:
-           if is_sapbr_open() == True:
-                continue
-           else:
+	   if is_sapbr_open() == True:
+		continue
+	   else:
                 print "Starting SAPBR"
-                atio.send_cmd(i, 0.5)
-                continue
+		atio.send_cmd(i, 0.5)
+		continue      
         response = atio.send_cmd(i, 0.5);
         # Something is wrong
         if response == False:
             return False
 
-# TODO: Move this to common
+# Move this to common
 def is_sapbr_open():
     response = atio.send_cmd(CMD_AT_SAPBR_QUERY, 0.5)
     if response == False:
-        return True
+	return True
     return False
 
-        

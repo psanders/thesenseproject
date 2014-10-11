@@ -1,10 +1,10 @@
-# Basic I/O operations on sim900 modem
 import serial
 import time
 
 # Sim900 modem
 port = serial.Serial(port='/dev/ttyAMA0', baudrate=9600, timeout=0.5, writeTimeout=2)
 
+# Basic I/O operation: Read
 def read():
     return port.read(1024)
 
@@ -21,3 +21,4 @@ def send_cmd(cmd, timeout):
   if cmd[1] in response:
     return response
   return False
+
