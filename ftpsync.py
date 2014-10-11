@@ -25,18 +25,18 @@ while True:
 
     retry = 5
     while True:
-        result = atftp.setup_ftp()
-        if result == False:
-	    print "Can't setup ftp"
+        result = atftp .setup_ftp()
+        if result is False:
+	    print "[Can't setup ftp] try #" + str(retry)
 	    retry -= 1
             time.sleep(5)
-            print "Lets try again"
             if retry is 0:
 		# Power cicle modem
 		common.toggle_button(False)
-		time.sleep(10)
+		time.sleep(5)
 		common.toggle_button(True)
-		time.sleep(10)
+		time.sleep(5)
+		retry = 5
 	    continue
         break 
 

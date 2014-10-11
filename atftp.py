@@ -67,13 +67,15 @@ def setup_ftp():
 		continue
 	   else:
                 print "Starting SAPBR"
-		atio.send_cmd(i, 0.5)
-		continue      
+		response = atio.send_cmd(i, 0.5)
+		if response is False:
+			return False
+		continue
         response = atio.send_cmd(i, 0.5);
         # Something is wrong
         if response == False:
             return False
-
+    return True
 # Move this to common
 def is_sapbr_open():
     response = atio.send_cmd(CMD_AT_SAPBR_QUERY, 0.5)

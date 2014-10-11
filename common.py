@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 import RPi.GPIO as GPIO 
 import time
 import atio
@@ -16,7 +15,6 @@ def toggle_button(on):
     	GPIO.output(POWER_PIN, True) 
     	time.sleep(2)
     	GPIO.output(POWER_PIN, False) 
-
 
 def is_power_on():
     response = atio.send_cmd(CMD_AT, 0.5)
