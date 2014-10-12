@@ -33,9 +33,9 @@ while True:
             if retry is 0:
 		# Power cicle modem
 		common.toggle_button(False)
-		time.sleep(5)
+		time.sleep(10)
 		common.toggle_button(True)
-		time.sleep(5)
+		time.sleep(10)
 		retry = 5
 	    continue
         break 

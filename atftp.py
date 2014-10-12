@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import atio
 import time
 import os
@@ -27,7 +28,10 @@ CMD_AT_FTPGETNAME = ["AT+FTPGETNAME=", "OK"] # You must add the file name !!!
 CMD_AT_FTPGETPATH = ["AT+FTPGETPATH=\"wwrsftp/\"", "OK"]
 CMD_AT_FTPGET = ["AT+FTPGET=1", "+FTPGET:1,1"]
 FTP_SEC = [CMD_AT, CMD_AT_SAPBR_CONTENTTYPE, CMD_AT_SAPBR_APN, CMD_AT_SAPBR_USER, CMD_AT_SAPBR_PWD, CMD_AT_SAPBR_OPEN, CMD_AT_FTPCID, CMD_AT_FTPSERV, CMD_AT_FTPPORT, CMD_AT_FTPTYPE, CMD_AT_FTPPUN, CMD_AT_FTPPW, CMD_AT_FTPPUTPATH, CMD_AT_FTPGETPATH]
+#CMD_AT_CIPSHUT = ["AT+CIPSHUT", "SHUT OK"]
 DATA_FOLDER = "/home/pi/wwrs/data/"
+
+MAX_CHUNK_RETRY = 20
 
 def upload_ftp(file):
     f = CMD_AT_FTPGETNAME
@@ -41,41 +45,56 @@ def upload_ftp(file):
         print response
 	return False
     # Read file to upload
-    fsize = os.stat(DATA_FOLDER+file).st_size
+    fsize = os.stat(DATA_FOLDER + file).st_size
     with open(DATA_FOLDER+file, 'r') as f:
         RECORD_SIZE = 1300
-        records = iter(partial(f.read, RECORD_SIZE), b'')
-        ccount = 0
-    	for r in records:
+        records = list(iter(partial(f.read, RECORD_SIZE), b''))	
+	i = 0
+	p = 0
+    	while i < len(records):
     	    cmd = CMD_AT_FTPPUT_START[:]
-    	    cmd[0] = cmd[0] + str(len(r))
-	    print "Chunk #",ccount,"out of",fsize/1300, "and" ,(fsize - 1300 * ccount), "bytes left..."
-	    ccount += 1
+    	    cmd[0] = cmd[0] + str(len(records[i]))
+	    print "--Chunk #",i,"out of",fsize/1300, "and" ,(fsize - 1300 * i), "bytes left--"
             # Upload file
-    	    response = atio.send_cmd(cmd, 0.2)
+    	    response = atio.send_cmd(cmd, .5)
     	    if response is not False:
-	       atio.write(r)
+	       atio.write(records[i])
 	       err = atio.read()
-	       if "ERROR" in err: return False
-	response = atio.send_cmd(CMD_AT_FTPPUT_CLOSE, 0.5)
+	       if "ERROR" in err: 
+	       		print "DBG2"
+			return False
+	       i += 1
+	       continue
+            p += 1
+	    if p > MAX_CHUNK_RETRY:
+	    	return False
+	time.sleep(5)
+	response = atio.send_cmd(CMD_AT_FTPPUT_CLOSE, .5)
     return True
 
-def setup_ftp():	
-    for i in FTP_SEC:
-        if i == CMD_AT_SAPBR_OPEN:
+def setup_ftp():
+    #atio.send_cmd(CMD_AT_CIPSHUT, 0.5);
+    for cmd in FTP_SEC:
+	if cmd == CMD_AT_FTPSERV:
+		response = atio.send_cmd(cmd, 10)
+        	if response == False:
+            		return False
+		continue
+        if cmd == CMD_AT_SAPBR_OPEN:
 	   if is_sapbr_open() == True:
 		continue
 	   else:
                 print "Starting SAPBR"
-		response = atio.send_cmd(i, 0.5)
+		response = atio.send_cmd(cmd, 20)
 		if response is False:
 			return False
 		continue
-        response = atio.send_cmd(i, 0.5);
+        response = atio.send_cmd(cmd, 0.5);
         # Something is wrong
         if response == False:
             return False
     return True
+
 # Move this to common
 def is_sapbr_open():
     response = atio.send_cmd(CMD_AT_SAPBR_QUERY, 0.5)

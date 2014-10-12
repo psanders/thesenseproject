@@ -2,7 +2,7 @@ import serial
 import time
 
 # Sim900 modem
-port = serial.Serial(port='/dev/ttyAMA0', baudrate=9600, timeout=0.5, writeTimeout=2)
+port = serial.Serial(port='/dev/ttyAMA0', baudrate=115200, timeout=0.5, writeTimeout=0.5)
 
 # Basic I/O operation: Read
 def read():
