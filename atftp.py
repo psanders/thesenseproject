@@ -28,21 +28,17 @@ CMD_AT_FTPGETNAME = ["AT+FTPGETNAME=", "OK"] # You must add the file name !!!
 CMD_AT_FTPGETPATH = ["AT+FTPGETPATH=\"wwrsftp/\"", "OK"]
 CMD_AT_FTPGET = ["AT+FTPGET=1", "+FTPGET:1,1"]
 FTP_SEC = [CMD_AT, CMD_AT_SAPBR_CONTENTTYPE, CMD_AT_SAPBR_APN, CMD_AT_SAPBR_USER, CMD_AT_SAPBR_PWD, CMD_AT_SAPBR_OPEN, CMD_AT_FTPCID, CMD_AT_FTPSERV, CMD_AT_FTPPORT, CMD_AT_FTPTYPE, CMD_AT_FTPPUN, CMD_AT_FTPPW, CMD_AT_FTPPUTPATH, CMD_AT_FTPGETPATH]
-#CMD_AT_CIPSHUT = ["AT+CIPSHUT", "SHUT OK"]
 DATA_FOLDER = "/home/pi/wwrs/data/"
 
-MAX_CHUNK_RETRY = 20
+MAX_CHUNK_RETRY = 40
 
-def upload_ftp(file):
+def upload(file):
     f = CMD_AT_FTPGETNAME
     f[0] = CMD_AT_FTPPUTNAME[0] + "\"" + file + "\""
     response = atio.send_cmd(f, 0.5)
     response = atio.send_cmd(CMD_AT_FTPPUT, 8) # It takes few seconds to open session
     if response == False:
-	print "Can't upload file"
-        # Close session if any
-        response = atio.send_cmd(CMD_AT_FTPPUT_CLOSE, 0.5)
-        print response
+	print "Fail to open ftp session"
 	return False
     # Read file to upload
     fsize = os.stat(DATA_FOLDER + file).st_size
@@ -66,14 +62,15 @@ def upload_ftp(file):
 	       i += 1
 	       continue
             p += 1
+	    # Let it recover
+	    time.sleep(2)
 	    if p > MAX_CHUNK_RETRY:
 	    	return False
 	time.sleep(5)
 	response = atio.send_cmd(CMD_AT_FTPPUT_CLOSE, .5)
     return True
 
-def setup_ftp():
-    #atio.send_cmd(CMD_AT_CIPSHUT, 0.5);
+def setup():
     for cmd in FTP_SEC:
 	if cmd == CMD_AT_FTPSERV:
 		response = atio.send_cmd(cmd, 10)
