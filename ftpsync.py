@@ -54,15 +54,20 @@ while True:
 	        break 
 
     # Perform task here - upload files
-    #files = glob.glob(DATA_DIR + "*.jpg")
-    for f in files:
+    h = 0
+    hr = 0
+    while h < len(files):
+	f = files[h] 
 	c = f.count("/")
 	fname = f.split("/")[c]
     	uploaded = ftp.upload(fname)
 	if uploaded:
 	    # Move to uploaded dir
 	    move(f, uploaded_files)
+	    h += 1
 	    continue
-	break
+	hr += 1
+	if hr >= 5:
+		break
 
     time.sleep(S_T)

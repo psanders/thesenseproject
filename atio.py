@@ -2,15 +2,15 @@ import serial
 import time
 
 # Sim900 modem
-port = serial.Serial(port='/dev/ttyAMA0', baudrate=115200, timeout=0.5, writeTimeout=0.5)
+modem = serial.Serial(port='/dev/ttyAMA0', baudrate=115200, timeout=1, writeTimeout=1)
 
 # Basic I/O operation: Read
 def read():
-    return port.read(1024)
+    return modem.read(1024)
 
 # Basic I/O operation: Read
 def write(str):
-    port.write(str + "\r\n")
+    modem.write(str + "\r\n")
 
 # Send a cmd an return a response or 0 in case off error
 def send_cmd(cmd, timeout):

@@ -30,15 +30,16 @@ CMD_AT_FTPGET = ["AT+FTPGET=1", "+FTPGET:1,1"]
 FTP_SEC = [CMD_AT, CMD_AT_SAPBR_CONTENTTYPE, CMD_AT_SAPBR_APN, CMD_AT_SAPBR_USER, CMD_AT_SAPBR_PWD, CMD_AT_SAPBR_OPEN, CMD_AT_FTPCID, CMD_AT_FTPSERV, CMD_AT_FTPPORT, CMD_AT_FTPTYPE, CMD_AT_FTPPUN, CMD_AT_FTPPW, CMD_AT_FTPPUTPATH, CMD_AT_FTPGETPATH]
 DATA_FOLDER = "/home/pi/wwrs/data/"
 
-MAX_CHUNK_RETRY = 40
+MAX_CHUNK_RETRY = 20.00
 
 def upload(file):
     f = CMD_AT_FTPGETNAME
     f[0] = CMD_AT_FTPPUTNAME[0] + "\"" + file + "\""
     response = atio.send_cmd(f, 0.5)
-    response = atio.send_cmd(CMD_AT_FTPPUT, 8) # It takes few seconds to open session
+    response = atio.send_cmd(CMD_AT_FTPPUT, 20) # It takes few seconds to open session
     if response == False:
-	print "Fail to open ftp session"
+	print "-- Fail to open ftp session --"
+	atio.send_cmd(CMD_AT_FTPPUT_CLOSE, 15)
 	return False
     # Read file to upload
     fsize = os.stat(DATA_FOLDER + file).st_size
@@ -50,27 +51,46 @@ def upload(file):
     	while i < len(records):
     	    cmd = CMD_AT_FTPPUT_START[:]
     	    cmd[0] = cmd[0] + str(len(records[i]))
-	    print "--Chunk #",i,"out of",fsize/1300, "and" ,(fsize - 1300 * i), "bytes left--"
+            plost = float(p/MAX_CHUNK_RETRY) * 100	
+    	    print "-- Chunk #",i,"out of",fsize/1300, "and" ,(fsize - 1300 * i), "bytes left #plost:",str(plost)," --"
             # Upload file
-    	    response = atio.send_cmd(cmd, .5)
+
+	    tout = 0
+	    if plost <= 10:
+		tout = 0.5
+	    if plost > 10:
+		tout = 1
+	    if plost > 25:
+		tout > 1.5
+	    if plost > 40:
+		tout = 2
+	    if plost > 60:
+		tout = 3
+
+	    print "tout:" + str(tout)
+
+    	    response = atio.send_cmd(cmd, tout)
     	    if response is not False:
 	       atio.write(records[i])
 	       err = atio.read()
-	       if "ERROR" in err: 
-	       		print "DBG2"
+	       if "ERROR" in err:
 			return False
 	       i += 1
+	       if p > 1:
+	      		p -= 1
 	       continue
             p += 1
 	    # Let it recover
 	    time.sleep(2)
 	    if p > MAX_CHUNK_RETRY:
-	    	return False
+	 	return False
 	time.sleep(5)
-	response = atio.send_cmd(CMD_AT_FTPPUT_CLOSE, .5)
+	response = atio.send_cmd(CMD_AT_FTPPUT_CLOSE, 2)
     return True
 
 def setup():
+    # Ensure there is not a prior ftp session
+    atio.send_cmd(CMD_AT_FTPPUT_CLOSE, 10)
     for cmd in FTP_SEC:
 	if cmd == CMD_AT_FTPSERV:
 		response = atio.send_cmd(cmd, 10)
