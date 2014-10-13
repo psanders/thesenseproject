@@ -9,6 +9,10 @@ import atio
 import common
 from shutil import move
 from datetime import date
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # 60 secs?
 S_T = 60
@@ -27,19 +31,20 @@ while True:
 
     files = glob.glob(DATA_DIR + "*.jpg")
     if len(files) == 0:
-	print "Nothing to upload"
+	logger.info("Nothing to upload")
 	time.sleep(S_T)
 	continue
 
-    print "Total files to upload:" + str(len(files))
+    logger.info("Files to upload " + str(len(files)))
 
     # Only do this the first time or SAPBR is close
     if is_ftp_setup is False or ftp.is_sapbr_open() is False:
+	    logger.info("Setting up ftp")
 	    retry = 5
 	    while True:
 	        result = ftp.setup()
 	        if result is False:
-		    print "Fail to setup ftp"
+		    logger.warning("Fail to setup ftp")
 		    retry -= 1
 	            time.sleep(5)
 	            if retry is 0:
@@ -56,6 +61,7 @@ while True:
     # Perform task here - upload files
     h = 0
     hr = 0
+    logger.info("Uploading file")
     while h < len(files):
 	f = files[h] 
 	c = f.count("/")

@@ -1,8 +1,12 @@
 import serial
 import time
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Sim900 modem
-modem = serial.Serial(port='/dev/ttyAMA0', baudrate=115200, timeout=1, writeTimeout=1)
+modem = serial.Serial(port='/dev/ttyAMA0', baudrate=115200, timeout=0.1, writeTimeout=0.1)
 
 # Basic I/O operation: Read
 def read():
@@ -17,7 +21,7 @@ def send_cmd(cmd, timeout):
   write(cmd[0])
   time.sleep(timeout)
   response = read()
-  print "{", response, "}"
+  logger.debug("{", response, "}")
   if cmd[1] in response:
     return response
   return False
