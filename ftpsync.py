@@ -49,6 +49,7 @@ while True:
 	            time.sleep(5)
 	            if retry is 0:
 			# Power cicle modem after while
+			logger.info("Power cycling gprs module") 
 			common.toggle_button(False)
 			time.sleep(10)
 			common.toggle_button(True)

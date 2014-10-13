@@ -48,7 +48,9 @@ def upload(file):
 	return False
     # Read file to upload
     fsize = os.stat(DATA_FOLDER + file).st_size
+    start = time.time()
     with open(DATA_FOLDER+file, 'r') as f:
+	
         RECORD_SIZE = 1300
         records = list(iter(partial(f.read, RECORD_SIZE), b''))	
 	i = 0
@@ -98,7 +100,8 @@ def upload(file):
 	 	return False
 	time.sleep(5)
 	response = atio.send_cmd(CMD_AT_FTPPUT_CLOSE, 10)
-    print ""
+    ft = time.time()-start
+    logger.info("\nUpload time:" + str(ft))
     return True
 
 def setup():

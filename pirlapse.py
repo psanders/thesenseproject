@@ -18,10 +18,10 @@ cam = picamera.PiCamera()
 cam.resolution = (1280, 720)
 # Set a framerate of 1/6fps, then set shutter
 # speed to 6s and ISO to 800
-cam.framerate = Fraction(1, 6)
-cam.shutter_speed = 6000000
-cam.exposure_mode = 'off'
-cam.iso = 800
+#cam.framerate = Fraction(1, 6)
+#cam.shutter_speed = 6000000
+#cam.exposure_mode = 'off'
+#cam.iso = 800
 
 frame = 0 
 while True:

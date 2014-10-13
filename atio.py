@@ -21,7 +21,9 @@ def send_cmd(cmd, timeout):
   write(cmd[0])
   time.sleep(timeout)
   response = read()
-  logger.debug("{", response, "}")
+  logger.debug("[")
+  logger.debug(response)
+  logger.debug("]")
   if cmd[1] in response:
     return response
   return False
