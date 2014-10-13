@@ -3,7 +3,7 @@ import time
 import picamera
 
 VIDEO_DAYS = 1
-FRAMES_PER_HOUR = 10
+FRAMES_PER_HOUR = 120
 FRAMES = FRAMES_PER_HOUR * 24 * VIDEO_DAYS
 
 def capture_frame(frame):
