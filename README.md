@@ -5,15 +5,15 @@ Hardware
 
 * RPI B+
 * PiCamera NoIR(Night Vision)
-* Sim900(SainSmart)
+* Sim900 shield
 * USB Wifi (Optional)
 * DHT11 basic temperature-humidity sensor
 * MPL115A2 - I2C Barometric
+* PIR motion sensor
 * 12v battery pack
 * 12v Step Down to 5v
 * 12v Solar Panel (Optional)
 * Project Box
-* PIR motion sensor
 
 Software
 
