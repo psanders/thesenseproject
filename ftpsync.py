@@ -29,7 +29,9 @@ while True:
     if os.path.exists(uploaded_files) is False:
 	os.mkdir(uploaded_files)
 
-    files = glob.glob(DATA_DIR + "*.jpg")
+    files = glob.glob(DATA_DIR + "*.txt")
+    files += glob.glob(DATA_DIR + "*.jpg")
+    
     if len(files) == 0:
 	logger.info("Nothing to upload")
 	time.sleep(S_T)
