@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # Execute on @reboot
-
 import os
 import time
 import glob
