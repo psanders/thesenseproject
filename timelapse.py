@@ -9,6 +9,7 @@ FRAMES = FRAMES_PER_HOUR * 24 * VIDEO_DAYS
 def capture_frame(frame):
     with picamera.PiCamera() as cam:
         time.sleep(2)
+        cam.resolution = (1280, 720)
         cam.capture('/home/pi/wwrs/data/frame%03d.jpg' % frame)
 
 # Capture the images
