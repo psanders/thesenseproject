@@ -1,81 +1,53 @@
 #!/usr/bin/python
-# Execute on @reboot
-import os
-import time
+import ftplib
 import glob
-import atftp as ftp
-import atio
-import common
+import os, sys
+import time
 from shutil import move
 from datetime import date
+from lib import common
 import logging
-
-logging.basicConfig(level=logging.INFO)
+# This causes a conflict with cron
+#import logging.config
+#logging.config.fileConfig('logging.conf')
+#logger = logging.getLogger('senseLogger')
 logger = logging.getLogger(__name__)
 
-# 60 secs?
-S_T = 60
-DATA_DIR = "/home/pi/wwrs/data/"
+SERVER = 'phonytive.com'
+USER = 'wwrsftp'
+PWD = 'G4t0p4rd0#'
+DATA_DIR = "/home/pi/thesenseproject/data/"
 
-# Ensure modem is on
-common.toggle_button(True)
+if not common.lockFile(".lock.fs"):
+	sys.exit(0)
 
-is_ftp_setup = False
+while True:
+	# Ensure dir exist
+    	uploaded_files = DATA_DIR + str(date.today())
+    	if not os.path.exists(uploaded_files):
+        	os.mkdir(uploaded_files)
 
-while True:	
-    # Ensure dir exist
-    uploaded_files = DATA_DIR + str(date.today())
-    if os.path.exists(uploaded_files) is False:
-	os.mkdir(uploaded_files)
+	try:
+        	session = ftplib.FTP(SERVER, USER, PWD)
+		session.cwd("wwrsftp")
+		files = glob.glob(DATA_DIR + "*.txt")
+		files += glob.glob(DATA_DIR + "*.jpg")
 
-    files = glob.glob(DATA_DIR + "*.txt")
-    files += glob.glob(DATA_DIR + "*.jpg")
-    
-    if len(files) == 0:
-	logger.info("Nothing to upload")
-	time.sleep(S_T)
-	continue
+		# Max amount of files before reseting the fto session
+		mf = 5	
+		for f in files:
+        		c = f.count("/")
+        		fname = f.split("/")[c]
+			file = open(f,'rb') 
+			result = session.storbinary('STOR %s' % fname, file)
+			file.close()
+			if result:
+				move(f, uploaded_files)
+			mf -= 1
+			if mv <= 0:
+				break	
+		session.quit()
+	except:
+		logger.error(e)
+	time.sleep(60)
 
-    logger.info("Files to upload " + str(len(files)))
-
-    # Only do this the first time or SAPBR is close
-    if is_ftp_setup is False or ftp.is_sapbr_open() is False:
-	    logger.info("Setting up ftp")
-	    retry = 5
-	    while True:
-	        result = ftp.setup()
-	        if result is False:
-		    logger.warning("Fail to setup ftp")
-		    retry -= 1
-	            time.sleep(5)
-	            if retry is 0:
-			# Power cicle modem after while
-			logger.info("Power cycling gprs module") 
-			common.toggle_button(False)
-			time.sleep(10)
-			common.toggle_button(True)
-			time.sleep(10)
-			retry = 5
-		    continue
-		is_ftp_setup = True
-	        break 
-
-    # Perform task here - upload files
-    h = 0
-    hr = 0
-    logger.info("Uploading file")
-    while h < len(files):
-	f = files[h] 
-	c = f.count("/")
-	fname = f.split("/")[c]
-    	uploaded = ftp.upload(fname)
-	if uploaded:
-	    # Move to uploaded dir
-	    move(f, uploaded_files)
-	    h += 1
-	    continue
-	hr += 1
-	if hr >= 5:
-		break
-
-    time.sleep(S_T)

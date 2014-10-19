@@ -31,7 +31,7 @@ while True:
 	if currState != prevState:
 		print "GPIO pin {0} is {1}".format(sensorPin, "HIGH" if currState else "LOW")
 		if currState:
-			fileName = ('/home/pi/wwrs/data/motion%3d.jpg' % frame)
+			fileName = ('/home/pi/thesenseproject/data/motion%3d.jpg' % frame)
 			frame += 1
 			cam.capture(fileName)
 			time.sleep(2)
