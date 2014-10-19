@@ -47,7 +47,7 @@ while True:
 			if mv <= 0:
 				break	
 		session.quit()
-	except:
+	except Exception as e:
 		logger.error(e)
 	time.sleep(60)
 
