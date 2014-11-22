@@ -13,9 +13,9 @@ import logging
 #logger = logging.getLogger('senseLogger')
 logger = logging.getLogger(__name__)
 
-SERVER = 'phonytive.com'
-USER = 'wwrsftp'
-PWD = 'G4t0p4rd0#'
+SERVER = 'kaffeineminds.com'
+USER = 'psanders'
+PWD = 'osopolar'
 DATA_DIR = "/home/pi/thesenseproject/data/"
 
 if not common.lockFile(".lock.fs"):
